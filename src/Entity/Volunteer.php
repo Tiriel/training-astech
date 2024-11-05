@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\VolunteerRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: VolunteerRepository::class)]
+#[ORM\Entity(repositoryClass: VolunteerRepository::class, readOnly: true)]
 class Volunteer
 {
     #[ORM\Id]
