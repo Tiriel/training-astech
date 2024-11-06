@@ -17,8 +17,17 @@
                                 <p>From <span
                                             class="fw-semibold">{{ event.startAt|date('d M Y') }}</span> to
                                     <span class="fw-semibold">{{ event.endAt|date('d M Y') }}</span></p>
-                                <p class="my-0">Project: {{ event.project.name|default('None') }}</p>
-                                <p class="my-0">Organizations: {{ event.organizations|map(o => o.name)|join(', ')|default('None') }}</p>
+                                {% if event.project is not null %}
+                                <p class="my-0">Project: <a href="{{ path('app_project_showproject', {id: event.project.id}) }}">{{ event.project.name }}</a></p>
+                                {% else %}
+                                <p class="my-0">Project: None</p>
+                                {% endif %}
+
+                                {% set orgs = [] %}
+                                {% for orga in event.organizations %}
+                                    {% set orgs = orgs|merge([{link: path('app_organization_showorganization', {id: orga.id}), name: orga.name}]) %}
+                                {% endfor %}
+                                <p class="my-0">Organizations: {{ orgs|map(o => '<a href="'~o.link~'">'~o.name~'</a>')|join(', ')|raw }}</p>
                                 <p>Accessible
                                     : {{ event.accessible ? 'Yes' : 'No' }}</p>
                             </div>
