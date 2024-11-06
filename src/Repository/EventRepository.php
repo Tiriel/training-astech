@@ -16,28 +16,24 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
-    //    /**
-    //     * @return Event[] Returns an array of Event objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('e.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findEventsBetweenDates(?\DateTimeImmutable $start = null, ?\DateTimeImmutable $end = null): array
+    {
+        if (null === $start && null === $end) {
+            throw new \InvalidArgumentException('At least one date is required to operate this method.');
+        }
 
-    //    public function findOneBySomeField($value): ?Event
-    //    {
-    //        return $this->createQueryBuilder('e')
-    //            ->andWhere('e.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $qb = $this->createQueryBuilder('e');
+
+        if ($start instanceof \DateTimeImmutable) {
+            $qb->andWhere('e.startAt >= :start')
+                ->setParameter('start', $start);
+        }
+
+        if ($end instanceof \DateTimeImmutable) {
+            $qb->andWhere('e.endAt <= :end')
+                ->setParameter('end', $end);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }
