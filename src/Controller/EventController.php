@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Event;
+use App\Form\EventType;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,20 +29,14 @@ class EventController extends AbstractController
         ]);
     }
 
-    #[Route('/event/{name}/{start}/{end}', name: 'app_event_new', requirements: ['start' => '[0-9-]{10}', 'end' => '[0-9-]{10}'], methods: ['GET'])]
-    public function newEvent(string $name, string $start, string $end, EntityManagerInterface $manager): Response
+    #[Route('/event/new', name: 'app_event_new')]
+    public function newEvent(): Response
     {
-        $event = (new Event())
-            ->setName($name)
-            ->setDescription('Some generic description')
-            ->setAccessible(true)
-            ->setStartAt(new \DateTimeImmutable($start))
-            ->setEndAt(new \DateTimeImmutable($end))
-        ;
+        $event = new Event();
+        $form = $this->createForm(EventType::class, $event);
 
-        $manager->persist($event);
-        $manager->flush();
-
-        return new Response('Event created');
+        return $this->render('event/new_event.html.twig', [
+            'form' => $form,
+        ]);
     }
 }
