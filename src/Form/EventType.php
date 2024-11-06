@@ -7,6 +7,7 @@ use App\Entity\Organization;
 use App\Entity\Project;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -18,7 +19,9 @@ class EventType extends AbstractType
             ->add('name')
             ->add('description')
             ->add('accessible')
-            ->add('prerequisites')
+            ->add('prerequisites', TextareaType::class, [
+                'required' => false,
+            ])
             ->add('startAt', null, [
                 'widget' => 'single_text',
             ])
@@ -33,6 +36,7 @@ class EventType extends AbstractType
             ->add('project', EntityType::class, [
                 'class' => Project::class,
                 'choice_label' => 'name',
+                'required' => false,
             ])
         ;
     }
