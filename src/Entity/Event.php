@@ -64,6 +64,9 @@ class Event
     #[ORM\ManyToOne(inversedBy: 'events')]
     private ?Project $project = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $archived = null;
+
     public function __construct()
     {
         $this->volunteers = new ArrayCollection();
@@ -212,6 +215,18 @@ class Event
     public function setProject(?Project $project): static
     {
         $this->project = $project;
+
+        return $this;
+    }
+
+    public function isArchived(): ?bool
+    {
+        return $this->archived;
+    }
+
+    public function setArchived(?bool $archived): static
+    {
+        $this->archived = $archived;
 
         return $this;
     }

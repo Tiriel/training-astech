@@ -17,7 +17,7 @@ class OrganizationFixtures extends Fixture implements DependentFixtureInterface
             ->setCreatedAt(new \DateTimeImmutable())
         ;
 
-        for ($i = 12; $i < 22; $i++) {
+        for ($i = 0; $i < 30; $i++) {
             $org->addEvent($this->getReference(EventFixtures::SF_LIVE.$i));
         }
 

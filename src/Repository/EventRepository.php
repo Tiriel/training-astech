@@ -16,13 +16,26 @@ class EventRepository extends ServiceEntityRepository
         parent::__construct($registry, Event::class);
     }
 
-    public function findEventsBetweenDates(?\DateTimeImmutable $start = null, ?\DateTimeImmutable $end = null): array
+    public function save(Event $event, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($event);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function findLiveEventsBetweenDates(?\DateTimeImmutable $start = null, ?\DateTimeImmutable $end = null): array
     {
         if (null === $start && null === $end) {
             throw new \InvalidArgumentException('At least one date is required to operate this method.');
         }
 
         $qb = $this->createQueryBuilder('e');
+        $qb->andWhere($qb->expr()->orX(
+            $qb->expr()->eq('e.archived', 0),
+            $qb->expr()->isNull('e.archived')
+        ));
 
         if ($start instanceof \DateTimeImmutable) {
             $qb->andWhere('e.startAt >= :start')
