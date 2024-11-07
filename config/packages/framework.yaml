@@ -3,6 +3,14 @@ framework:
     secret: '%env(APP_SECRET)%'
     #csrf_protection: true
 
+    http_client:
+        scoped_clients:
+            events.client:
+                base_uri: 'https://www.devevents-api.fr'
+                headers:
+                    apikey: '%env(EVENTS_API_KEY)%'
+                    Accept: 'application/json'
+
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 

@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Event;
 use App\Form\EventType;
-use App\Repository\EventRepository;
+use App\Search\DatabaseEventSearch;
+use App\Search\EventSearchInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,11 +16,22 @@ use Symfony\Component\Routing\Attribute\Route;
 class EventController extends AbstractController
 {
     #[Route('/event', name: 'app_event_listevent', methods: ['GET'])]
-    public function listEvents(EventRepository $repository, Request $request): Response
+    public function listEvents(DatabaseEventSearch $search, Request $request): Response
     {
+        $events = $search->searchByName($request->query->get('name'));
+
         return $this->render('event/list_events.html.twig', [
-            'events' => $repository->searchByName($request->query->get('name')),
+            'events' => $events
         ]);
+    }
+
+    #[Route('/event/search', name: 'app_event_search', methods: ['GET'])]
+    #[Template('event/list_events.html.twig')]
+    public function searchEvents(Request $request, EventSearchInterface $search): array
+    {
+        $events = $search->searchByName($request->query->get('name'))['hydra:member'];
+
+        return ['events' => $events];
     }
 
     #[Route('/event/{id}', name: 'app_event_showevent', requirements: ['id' => '\d+'], methods: ['GET'])]
@@ -30,9 +43,10 @@ class EventController extends AbstractController
     }
 
     #[Route('/event/new', name: 'app_event_new')]
-    public function newEvent(Request $request, EntityManagerInterface $manager): Response
+    #[Route('/event/{id<\d+>/edit', name: 'app_event_edit')]
+    public function newEvent(?Event $event, Request $request, EntityManagerInterface $manager): Response
     {
-        $event = new Event();
+        $event ??= new Event();
         $form = $this->createForm(EventType::class, $event);
 
         $form->handleRequest($request);

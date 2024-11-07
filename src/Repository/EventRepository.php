@@ -25,12 +25,8 @@ class EventRepository extends ServiceEntityRepository
         }
     }
 
-    public function searchByName(?string $name = null): iterable
+    public function searchByName(string $name): iterable
     {
-        if (null === $name) {
-            return $this->findAll();
-        }
-
         $qb = $this->createQueryBuilder('e');
 
         return $qb->andWhere($qb->expr()->like('e.name', ':name'))
