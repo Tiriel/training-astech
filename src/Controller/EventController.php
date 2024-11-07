@@ -14,10 +14,10 @@ use Symfony\Component\Routing\Attribute\Route;
 class EventController extends AbstractController
 {
     #[Route('/event', name: 'app_event_listevent', methods: ['GET'])]
-    public function listEvents(EventRepository $repository): Response
+    public function listEvents(EventRepository $repository, Request $request): Response
     {
         return $this->render('event/list_events.html.twig', [
-            'events' => $repository->findAll(),
+            'events' => $repository->searchByName($request->query->get('name')),
         ]);
     }
 

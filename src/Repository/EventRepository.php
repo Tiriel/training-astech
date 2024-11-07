@@ -25,6 +25,20 @@ class EventRepository extends ServiceEntityRepository
         }
     }
 
+    public function searchByName(?string $name = null): iterable
+    {
+        if (null === $name) {
+            return $this->findAll();
+        }
+
+        $qb = $this->createQueryBuilder('e');
+
+        return $qb->andWhere($qb->expr()->like('e.name', ':name'))
+            ->setParameter('name', sprintf("%%%s%%", $name))
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findLiveEventsBetweenDates(?\DateTimeImmutable $start = null, ?\DateTimeImmutable $end = null): array
     {
         if (null === $start && null === $end) {
