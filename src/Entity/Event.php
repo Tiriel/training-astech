@@ -67,6 +67,9 @@ class Event
     #[ORM\Column(nullable: true)]
     private ?bool $archived = null;
 
+    #[ORM\ManyToOne(inversedBy: 'events')]
+    private ?User $createdBy = null;
+
     public function __construct()
     {
         $this->volunteers = new ArrayCollection();
@@ -227,6 +230,18 @@ class Event
     public function setArchived(?bool $archived): static
     {
         $this->archived = $archived;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
 
         return $this;
     }

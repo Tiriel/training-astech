@@ -5,12 +5,14 @@ namespace App\Controller;
 use App\Entity\Project;
 use App\Form\ProjectType;
 use App\Repository\ProjectRepository;
+use App\Security\Voter\EditionVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Clock\ClockAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class ProjectController extends AbstractController
 {
@@ -32,10 +34,12 @@ class ProjectController extends AbstractController
         ]);
     }
 
+    #[IsGranted(EditionVoter::PROJECT, 'project')]
     #[Route('/project/new', name: 'app_project_new', methods: ['GET', 'POST'])]
-    public function newProject(Request $request, EntityManagerInterface $manager): Response
+    #[Route('/project/{id<\d+>}/edit', name: 'app_project_edit', methods: ['GET', 'POST'])]
+    public function newProject(?Project $project, Request $request, EntityManagerInterface $manager): Response
     {
-        $project = new Project();
+        $project ??= new Project();
         $form = $this->createForm(ProjectType::class, $project);
 
         $form->handleRequest($request);

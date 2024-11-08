@@ -54,6 +54,9 @@ class Project
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'project')]
     private Collection $events;
 
+    #[ORM\ManyToOne(inversedBy: 'projects')]
+    private ?User $createdBy = null;
+
     public function __construct()
     {
         $this->organizations = new ArrayCollection();
@@ -194,6 +197,18 @@ class Project
                 $event->setProject(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
 
         return $this;
     }

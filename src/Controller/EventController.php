@@ -6,6 +6,7 @@ use App\Entity\Event;
 use App\Form\EventType;
 use App\Search\DatabaseEventSearch;
 use App\Search\EventSearchInterface;
+use App\Security\Voter\EditionVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Attribute\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,6 +47,10 @@ class EventController extends AbstractController
     #[Route('/event/{id<\d+>/edit', name: 'app_event_edit')]
     public function newEvent(?Event $event, Request $request, EntityManagerInterface $manager): Response
     {
+        if ($event instanceof Event) {
+            $this->denyAccessUnlessGranted(EditionVoter::EVENT, $event);
+        }
+
         $event ??= new Event();
         $form = $this->createForm(EventType::class, $event);
 
