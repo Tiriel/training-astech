@@ -7,14 +7,20 @@ use App\Entity\Organization;
 use App\Transformer\ApiToEventTransformer;
 use App\Transformer\ApiToOrganizationTransformer;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class EventProvider
 {
+    protected readonly bool $isOrgOrAdmin;
+
     public function __construct(
         protected readonly EntityManagerInterface $manager,
         protected readonly ApiToEventTransformer $eventTransformer,
         protected readonly ApiToOrganizationTransformer $organizationTransformer,
+        AuthorizationCheckerInterface $checker
     ) {
+        $this->isOrgOrAdmin = $checker->isGranted('ROLE_ORGANIZER')
+            || $checker->isGranted('ROLE_WEBSITE', /* $subject */);
     }
 
     public function getFromApiResults(array $results): iterable
@@ -27,7 +33,9 @@ class EventProvider
                 $entity->addEvent($event);
             }
 
-            $this->manager->flush();
+            if ($this->isOrgOrAdmin) {
+                $this->manager->flush();
+            }
 
             return $event;
         },$results);
@@ -43,7 +51,10 @@ class EventProvider
 
         if (null === $event) {
             $event = $this->eventTransformer->transform($apiEvent);
-            $this->manager->persist($event);
+
+            if ($this->isOrgOrAdmin) {
+                $this->manager->persist($event);
+            }
         }
 
         return $event;
@@ -54,7 +65,10 @@ class EventProvider
 
         if (null === $entity) {
             $entity = $this->organizationTransformer->transform($org);
-            $this->manager->persist($entity);
+
+            if ($this->isOrgOrAdmin) {
+                $this->manager->persist($entity);
+            }
         }
 
         return $entity;
